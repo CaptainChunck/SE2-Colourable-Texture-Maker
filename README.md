@@ -155,5 +155,11 @@ A hidden check renders the window off-screen and saves a set without showing any
 
 ---
 
+## Licence
+
+[MIT](LICENSE) - Copyright (c) 2026 CaptainChunck.
+
+---
+
 Fan-made tool, not affiliated with or endorsed by Keen Software House. Space Engineers is a trademark of Keen
 Software House. The screenshots use a texture generated for this README.
