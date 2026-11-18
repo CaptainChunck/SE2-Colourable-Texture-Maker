@@ -14,7 +14,7 @@ in game, just like Keen's own painted metal.
 
 ## Download
 
-Get **`SE2 Colourable Texture Maker.exe`** from the [Releases](../../releases) page and run it. It works from any
+Get **`SE2.Colourable.Texture.Maker.exe`** from the [latest release](https://github.com/CaptainChunck/SE2-Colourable-Texture-Maker/releases/latest) and run it (rename it if you like). It works from any
 folder (desktop, USB stick ...) on Windows 10 and 11, using the .NET Framework 4.8 that comes with Windows.
 
 The exe is not code-signed. The first time you run it, Windows SmartScreen may say "Windows protected your PC".
