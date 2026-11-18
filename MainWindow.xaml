@@ -1,0 +1,247 @@
+<Window x:Class="SE2ColourableTextureMaker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SE2 Colourable Texture Maker" Width="1480" Height="920" MinWidth="1200" MinHeight="780"
+        WindowStartupLocation="CenterScreen" Background="#FF05090C" AllowDrop="True"
+        FontFamily="Segoe UI" UseLayoutRounding="True" SnapsToDevicePixels="True">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="34" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
+    <Grid x:Name="Root">
+        <!-- space backdrop: stars drawn at start-up, two faint nebula glows, a vignette -->
+        <Rectangle x:Name="Stars"/>
+        <Rectangle>
+            <Rectangle.Fill>
+                <RadialGradientBrush Center="0.72,0.22" GradientOrigin="0.72,0.22" RadiusX="0.55" RadiusY="0.6">
+                    <GradientStop Color="#3329506A" Offset="0"/>
+                    <GradientStop Color="#00000000" Offset="1"/>
+                </RadialGradientBrush>
+            </Rectangle.Fill>
+        </Rectangle>
+        <Rectangle>
+            <Rectangle.Fill>
+                <RadialGradientBrush Center="0.2,0.85" GradientOrigin="0.2,0.85" RadiusX="0.45" RadiusY="0.5">
+                    <GradientStop Color="#22A0642A" Offset="0"/>
+                    <GradientStop Color="#00000000" Offset="1"/>
+                </RadialGradientBrush>
+            </Rectangle.Fill>
+        </Rectangle>
+        <Rectangle>
+            <Rectangle.Fill>
+                <RadialGradientBrush RadiusX="0.75" RadiusY="0.75">
+                    <GradientStop Color="#00000000" Offset="0.55"/>
+                    <GradientStop Color="#AA000000" Offset="1"/>
+                </RadialGradientBrush>
+            </Rectangle.Fill>
+        </Rectangle>
+        <Border BorderBrush="#FF23383F" BorderThickness="1"/>
+
+        <Grid Margin="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="34"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- caption bar -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True">
+                <Button Style="{StaticResource CaptionButton}" Click="Min_Click" ToolTip="Minimise">
+                    <Path Data="M0,5 L10,5" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1" Width="10" Height="10"/>
+                </Button>
+                <Button Style="{StaticResource CaptionButton}" Click="Max_Click" ToolTip="Maximise">
+                    <Path x:Name="MaxIcon" Data="M0.5,0.5 L9.5,0.5 L9.5,9.5 L0.5,9.5 Z" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1" Width="10" Height="10"/>
+                </Button>
+                <Button Style="{StaticResource CaptionButton}" Click="Close_Click" ToolTip="Close">
+                    <Path Data="M0,0 L10,10 M10,0 L0,10" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1" Width="10" Height="10"/>
+                </Button>
+            </StackPanel>
+            <Polygon Points="0,0 64,0 0,64" Fill="#FFE48A17" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Top" IsHitTestVisible="False"/>
+            <TextBlock Text="TOOL" Grid.RowSpan="2" FontSize="11" FontWeight="Bold" Foreground="#FF1A1205" Margin="4,15,0,0" IsHitTestVisible="False">
+                <TextBlock.RenderTransform><RotateTransform Angle="-45"/></TextBlock.RenderTransform>
+            </TextBlock>
+
+            <!-- title, like the menu's game logo -->
+            <StackPanel Grid.Row="1" Margin="40,0,40,10" Orientation="Horizontal">
+                <StackPanel>
+                    <TextBlock Text="COLOURABLE TEXTURE MAKER" FontFamily="Segoe UI Black" FontSize="38" Foreground="White"/>
+                    <StackPanel Orientation="Horizontal" Margin="2,0,0,0">
+                        <Rectangle Width="36" Height="3" Fill="{StaticResource Accent}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBlock Text="PBR TEXTURE  ▸  PAINTABLE SPACE ENGINEERS 2 MATERIAL" Foreground="{StaticResource Accent}" FontFamily="Segoe UI Semibold" FontSize="15"/>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+
+            <Grid Grid.Row="2" Margin="40,6,40,30">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="270"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="360"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- ============ left: the menu ============ -->
+                <DockPanel Grid.Column="0" LastChildFill="True">
+                    <StackPanel DockPanel.Dock="Top">
+                        <Button Style="{StaticResource MenuButton}" Content="Load PBR Texture" Click="Load_Click" ToolTip="Pick any one map of the set (or several): the other maps in the same folder are found by their names"/>
+                        <Button Style="{StaticResource MenuButton}" Content="Load Folder" Click="LoadFolder_Click"/>
+                        <Button Style="{StaticResource PrimaryButton}" x:Name="SaveBtn" Content="Save Colourable Texture" Click="Save_Click" IsEnabled="False"/>
+                    </StackPanel>
+                    <Button DockPanel.Dock="Bottom" Style="{StaticResource MenuButton}" Content="Exit to Windows" Click="Close_Click" Margin="0,9,0,0"/>
+                    <Border Style="{StaticResource Card}" Margin="0,8,0,0">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Heading}" Text="MATERIAL NAME"/>
+                                <TextBox x:Name="NameBox" Text="MyMaterialColorable" TextChanged="Name_Changed"/>
+                                <TextBlock Style="{StaticResource Small}" Margin="0,5,0,0" Text="Name the Blender material exactly like this. Files are saved as Name_albedo.png, Name_normal.png ..."/>
+                                <TextBlock Style="{StaticResource Heading}" Text="TEXTURE MAPS"/>
+                                <StackPanel x:Name="MapList"/>
+                                <TextBlock Style="{StaticResource Heading}" Text="RESULT"/>
+                                <TextBlock x:Name="StatsText" Style="{StaticResource Small}" Text="Nothing loaded yet."/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+                </DockPanel>
+
+                <!-- ============ middle: the preview ============ -->
+                <Grid Grid.Column="1" Margin="22,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <DockPanel Margin="0,0,0,8">
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                            <CheckBox x:Name="LitBox" Content="Lit" IsChecked="True" Margin="0,0,14,0" Click="View_Changed"/>
+                            <RadioButton Style="{StaticResource Segment}" GroupName="tile" Content="1×1" IsChecked="True" Tag="1" Checked="Tile_Checked"/>
+                            <RadioButton Style="{StaticResource Segment}" GroupName="tile" Content="2×2" Tag="2" Checked="Tile_Checked"/>
+                            <RadioButton Style="{StaticResource Segment}" GroupName="tile" Content="3×3" Tag="3" Checked="Tile_Checked"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" x:Name="ViewTabs">
+                            <RadioButton Style="{StaticResource Segment}" GroupName="view" Content="Painted" Tag="Painted" IsChecked="True" Checked="View_Checked"/>
+                            <RadioButton Style="{StaticResource Segment}" GroupName="view" Content="Original" Tag="Original" Checked="View_Checked"/>
+                            <RadioButton Style="{StaticResource Segment}" GroupName="view" Content="Colour" Tag="Albedo" Checked="View_Checked"/>
+                            <RadioButton Style="{StaticResource Segment}" GroupName="view" Content="Paint mask" Tag="Mask" Checked="View_Checked"/>
+                            <RadioButton Style="{StaticResource Segment}" GroupName="view" Content="Metal" Tag="Metal" Checked="View_Checked"/>
+                            <RadioButton Style="{StaticResource Segment}" GroupName="view" Content="Rough" Tag="Roughness" Checked="View_Checked"/>
+                            <RadioButton Style="{StaticResource Segment}" GroupName="view" Content="Normal" Tag="Normal" Checked="View_Checked"/>
+                        </StackPanel>
+                    </DockPanel>
+                    <Border Grid.Row="1" BorderBrush="#E6F4F7F8" BorderThickness="1" CornerRadius="3" Background="#FF070D10" ClipToBounds="True">
+                        <Grid>
+                            <Viewbox Stretch="Uniform" Margin="0,0,0,34">
+                                <Rectangle x:Name="PreviewRect" Width="1024" Height="1024"/>
+                            </Viewbox>
+                            <StackPanel x:Name="DropHint" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,34">
+                                <TextBlock Text="DROP A PBR TEXTURE HERE" FontFamily="Segoe UI Black" FontSize="26" HorizontalAlignment="Center" Foreground="#CCF4F7F8"/>
+                                <TextBlock Text="a folder, or the map files (albedo / base colour, normal, roughness, metallic, AO, height)" Style="{StaticResource Small}" HorizontalAlignment="Center" Margin="0,6,0,0"/>
+                                <TextBlock Text="or press Load PBR Texture" Style="{StaticResource Small}" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            <Border VerticalAlignment="Bottom" Height="34" Background="#E60A1418">
+                                <DockPanel Margin="14,0">
+                                    <TextBlock x:Name="ResText" DockPanel.Dock="Right" VerticalAlignment="Center" Foreground="{StaticResource TextDim}" FontSize="12.5"/>
+                                    <TextBlock x:Name="CaptionText" Text="Preview" VerticalAlignment="Center" FontSize="14.5"/>
+                                </DockPanel>
+                            </Border>
+                            <Border x:Name="Busy" Background="#AA05090C" Visibility="Collapsed">
+                                <TextBlock x:Name="BusyText" Text="WORKING…" FontFamily="Segoe UI Black" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource Accent}"/>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- ============ right: settings ============ -->
+                <Border Grid.Column="2" Style="{StaticResource Card}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="0,0,6,0">
+                            <TextBlock Style="{StaticResource Heading}" Text="PAINT COLOUR"/>
+                            <WrapPanel x:Name="Palette"/>
+                            <Grid Margin="0,4,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="20"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/><RowDefinition/><RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="H" VerticalAlignment="Center" Foreground="{StaticResource TextDim}"/>
+                                <Slider x:Name="HSlider" Grid.Column="1" Maximum="360" ValueChanged="Hsv_Changed"/>
+                                <TextBlock Grid.Column="2" Text="{Binding Value, ElementName=HSlider, StringFormat={}{0:0}°}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextDim}"/>
+                                <TextBlock Grid.Row="1" Text="S" VerticalAlignment="Center" Foreground="{StaticResource TextDim}"/>
+                                <Slider x:Name="SSlider" Grid.Row="1" Grid.Column="1" Maximum="100" ValueChanged="Hsv_Changed"/>
+                                <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Value, ElementName=SSlider, StringFormat={}{0:0}%}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextDim}"/>
+                                <TextBlock Grid.Row="2" Text="V" VerticalAlignment="Center" Foreground="{StaticResource TextDim}"/>
+                                <Slider x:Name="VSlider" Grid.Row="2" Grid.Column="1" Maximum="100" ValueChanged="Hsv_Changed"/>
+                                <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding Value, ElementName=VSlider, StringFormat={}{0:0}%}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextDim}"/>
+                            </Grid>
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/><ColumnDefinition Width="10"/><ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <Border x:Name="SwatchKeen" Height="26" CornerRadius="2" BorderBrush="{StaticResource Line}" BorderThickness="1"/>
+                                    <TextBlock Style="{StaticResource Small}" FontSize="11" Margin="0,3,0,0" Text="Keen's paintable metal"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <Border x:Name="SwatchMine" Height="26" CornerRadius="2" BorderBrush="{StaticResource Line}" BorderThickness="1"/>
+                                    <TextBlock Style="{StaticResource Small}" FontSize="11" Margin="0,3,0,0" Text="Your texture (average)"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBlock Style="{StaticResource Heading}" Text="WHERE THE PAINT GOES"/>
+                            <RadioButton Style="{StaticResource OptionRow}" GroupName="mask" Tag="Whole" IsChecked="True" Checked="Mask_Checked" Content="Whole texture"/>
+                            <RadioButton Style="{StaticResource OptionRow}" GroupName="mask" Tag="Bright" Checked="Mask_Checked" Content="Bright parts (dark parts stay bare)"/>
+                            <RadioButton Style="{StaticResource OptionRow}" GroupName="mask" Tag="Low" Checked="Mask_Checked" Content="Low parts (raised parts stay bare)"/>
+                            <RadioButton Style="{StaticResource OptionRow}" GroupName="mask" Tag="Custom" Checked="Mask_Checked" Content="My own mask picture (white = paint)"/>
+                            <RadioButton Style="{StaticResource OptionRow}" GroupName="mask" Tag="None" Checked="Mask_Checked" Content="Nowhere (a bare, unpaintable material)"/>
+                            <StackPanel x:Name="MaskTuning" Margin="0,6,0,0">
+                                <DockPanel>
+                                    <TextBlock Text="{Binding Value, ElementName=ThresholdSlider, StringFormat={}{0:0}%}" DockPanel.Dock="Right" Foreground="{StaticResource TextDim}"/>
+                                    <TextBlock Text="Split point" Foreground="{StaticResource TextDim}" FontSize="12.5"/>
+                                </DockPanel>
+                                <Slider x:Name="ThresholdSlider" Maximum="100" Value="50" ValueChanged="Setting_Changed"/>
+                                <DockPanel>
+                                    <TextBlock Text="{Binding Value, ElementName=SoftSlider, StringFormat={}{0:0}%}" DockPanel.Dock="Right" Foreground="{StaticResource TextDim}"/>
+                                    <TextBlock Text="Edge softness" Foreground="{StaticResource TextDim}" FontSize="12.5"/>
+                                </DockPanel>
+                                <Slider x:Name="SoftSlider" Maximum="25" Value="3" ValueChanged="Setting_Changed"/>
+                                <CheckBox x:Name="SwapBox" Content="Swap painted and bare parts" Click="Setting_Click"/>
+                            </StackPanel>
+                            <Button x:Name="MaskBtn" Style="{StaticResource SmallButton}" Content="Load Mask Picture…" Click="LoadMask_Click" Margin="0,6,0,0" Visibility="Collapsed"/>
+
+                            <TextBlock Style="{StaticResource Heading}" Text="BRIGHTNESS UNDER THE PAINT"/>
+                            <CheckBox x:Name="MatchBox" Content="Match Keen's paintable metal" IsChecked="True" Click="Setting_Click"/>
+                            <DockPanel Margin="0,4,0,0">
+                                <TextBlock x:Name="TargetText" Text="128" DockPanel.Dock="Right" Foreground="{StaticResource TextDim}"/>
+                                <TextBlock Text="Average grey of the paintable parts (Keen: 128)" Foreground="{StaticResource TextDim}" FontSize="12.5"/>
+                            </DockPanel>
+                            <Slider x:Name="TargetSlider" Minimum="60" Maximum="200" Value="128" ValueChanged="Setting_Changed"/>
+                            <TextBlock Style="{StaticResource Small}" FontSize="11.5" Text="The game keeps only the brightness of the texture under paint: lighter than Keen's = lighter paint, darker = darker paint."/>
+
+                            <TextBlock Style="{StaticResource Heading}" Text="METALNESS UNDER THE PAINT"/>
+                            <CheckBox x:Name="MetalBox" Content="Lower it to Keen's painted metal" IsChecked="True" Click="Setting_Click"/>
+                            <DockPanel Margin="0,4,0,0">
+                                <TextBlock Text="{Binding Value, ElementName=MetalSlider, StringFormat={}{0:0}%}" DockPanel.Dock="Right" Foreground="{StaticResource TextDim}"/>
+                                <TextBlock Text="Average metalness (Keen: 55%)" Foreground="{StaticResource TextDim}" FontSize="12.5"/>
+                            </DockPanel>
+                            <Slider x:Name="MetalSlider" Maximum="100" Value="55" ValueChanged="Setting_Changed"/>
+
+                            <TextBlock Style="{StaticResource Heading}" Text="NORMAL MAP"/>
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton x:Name="GlBtn" Style="{StaticResource Segment}" GroupName="nrm" Content="OpenGL (as SE2)" IsChecked="True" Checked="Setting_Checked"/>
+                                <RadioButton x:Name="DxBtn" Style="{StaticResource Segment}" GroupName="nrm" Content="DirectX (flip green)" Checked="Setting_Checked"/>
+                            </StackPanel>
+
+                            <TextBlock Style="{StaticResource Heading}" Text="SAVED SIZE"/>
+                            <StackPanel Orientation="Horizontal" x:Name="SizeTabs">
+                                <RadioButton Style="{StaticResource Segment}" GroupName="size" Content="As loaded" Tag="0" IsChecked="True"/>
+                                <RadioButton Style="{StaticResource Segment}" GroupName="size" Content="4096" Tag="4096"/>
+                                <RadioButton Style="{StaticResource Segment}" GroupName="size" Content="2048" Tag="2048"/>
+                                <RadioButton Style="{StaticResource Segment}" GroupName="size" Content="1024" Tag="1024"/>
+                            </StackPanel>
+                            <TextBlock x:Name="NoteText" Style="{StaticResource Small}" Foreground="{StaticResource Accent}" Margin="0,12,0,0"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
